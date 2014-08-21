@@ -1,10 +1,10 @@
 #
 #-*- coding:utf-8 -*-
 # fab_set.py
-#    fab modules frame and set workflow defaults
+#    fab modules frame class and workflow default settings
 #
-# Neil Gershenfeld 9/1/13
-# (c) Massachusetts Institute of Technology 2013
+# Neil Gershenfeld 7/11/14
+# (c) Massachusetts Institute of Technology 2014
 #
 # This work may be reproduced, modified, distributed,
 # performed, and displayed for any purpose, but must
@@ -534,6 +534,76 @@ class fab_frame(wx.Frame):
       self.control_panel.defaults.Append('ワックス')
       self.defaults["wax"]\
       = "self.rml_panel.speed.SetValue('20');"
+   #
+   # set .png Roland SRM-20 defaults
+   #
+   def set_png_Roland_SRM_20(self):
+      self.defaults = {}
+      self.control_panel.defaults.Append('ミリングパス (1/64インチ)')
+      self.defaults["mill traces (1/64)"]\
+      = "self.png_path_panel.diameter_plane.SetValue('0.4');\
+         self.png_path_panel.number_plane.SetValue('4');\
+         self.png_path_panel.z_plane.SetValue('-0.1');\
+         self.Roland_SRM_20_panel.button.Hide();\
+         self.Roland_SRM_20_panel.speed.SetValue('4');\
+         self.Roland_SRM_20_panel.zjog.SetValue('1.0');\
+         self.path_type = '3D plane';\
+         self.update_panels();"
+      self.control_panel.defaults.Append('ミリングパス (0.010インチ)')
+      self.defaults["mill traces (0.010)"]\
+      = "self.png_path_panel.diameter_plane.SetValue('0.254');\
+         self.png_path_panel.number_plane.SetValue('1');\
+         self.png_path_panel.z_plane.SetValue('-0.1');\
+         self.Roland_SRM_20_panel.button.Hide();\
+         self.Roland_SRM_20_panel.speed.SetValue('2');\
+         self.Roland_SRM_20_panel.zjog.SetValue('1.0');\
+         self.path_type = '3D plane';\
+         self.update_panels();"
+      self.control_panel.defaults.Append('輪郭を切断 (1/32インチ)')
+      self.defaults["cut out board (1/32)"]\
+      = "self.png_path_panel.diameter_rough.SetValue('0.79');\
+         self.png_path_panel.number_rough.SetValue('1');\
+         self.png_path_panel.itop_rough.SetValue('0.5');\
+         self.png_path_panel.ibot_rough.SetValue('0.5');\
+         self.png_path_panel.ztop_rough.SetValue('-0.6');\
+         self.png_path_panel.zbot_rough.SetValue('-1.7');\
+         self.png_path_panel.zstep_rough.SetValue('0.6');\
+         self.Roland_SRM_20_panel.button.Hide();\
+         self.Roland_SRM_20_panel.speed.SetValue('4');\
+         self.Roland_SRM_20_panel.zjog.SetValue('1.0');\
+         self.path_type = '3D rough';\
+         self.update_panels();"
+      self.control_panel.defaults.Append('ワックス 荒削り 切断 (1/8)')
+      self.defaults["wax rough cut (1/8)"]\
+      = "self.png_path_panel.diameter_rough.SetValue('3.175');\
+         self.png_path_panel.number_rough.SetValue('-1');\
+         self.png_path_panel.overlap_rough.SetValue('0.25');\
+         self.png_path_panel.error_rough.SetValue('1.5');\
+         self.png_path_panel.zstep_rough.SetValue('1');\
+         self.png_path_panel.ibot_rough.SetValue('0');\
+         self.png_path_panel.itop_rough.SetValue('1');\
+         self.png_path_panel.zbot_rough.SetValue('-10');\
+         self.png_path_panel.ztop_rough.SetValue('0');\
+         self.Roland_SRM_20_panel.button.Hide();\
+         self.Roland_SRM_20_panel.speed.SetValue('20');\
+         self.path_type = '3D rough';\
+         self.update_panels();"
+      self.control_panel.defaults.Append('ワックス 仕上げ 切断 (1/8インチ)')
+      self.defaults["wax finish cut (1/8)"]\
+      = "self.png_path_panel.diameter_finish.SetValue('3.175');\
+         self.png_path_panel.clearance_diameter_finish.SetValue('3.175');\
+         self.png_path_panel.overlap_finish.SetValue('0.5');\
+         self.png_path_panel.error_finish.SetValue('1.5');\
+         self.png_path_panel.xz_finish.SetValue(True);\
+         self.png_path_panel.yz_finish.SetValue(True);\
+         self.png_path_panel.ibot_finish.SetValue('0');\
+         self.png_path_panel.itop_finish.SetValue('1');\
+         self.png_path_panel.zbot_finish.SetValue('-10');\
+         self.png_path_panel.ztop_finish.SetValue('0');\
+         self.Roland_SRM_20_panel.button.Hide();\
+         self.Roland_SRM_20_panel.speed.SetValue('20');\
+         self.path_type = '3D finish';\
+         self.update_panels();"
    #
    # set .png .sbp defaults
    #

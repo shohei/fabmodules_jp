@@ -5,9 +5,9 @@
 #   graphical interface for sending jobs to the Roland Modela
 #
 # Brian Mayton <bmayton@media.mit.edu>
-# MIT 2011-2013
+# MIT 2011-2014
 #
-# (c) Massachusetts Institute of Technology 2011-2013
+# (c) Massachusetts Institute of Technology 2011-2014
 # Permission granted for experimental and personal use;
 # license for commercial sale available from MIT.
 
@@ -37,7 +37,7 @@ class RMLSender:
     Modela."""
     
     def __init__(self, port="/dev/ttyUSB0"):
-        self.serial = serial.Serial(port, baudrate=9600, rtscts=True, timeout=0)
+        self.serial = serial.Serial(port, baudrate=9600, rtscts=True, dsrdtr=True, timeout=0)
         self.cmds = []
 
         self.xr=[0,1]; self.yr=[0,1]; self.zr=[0,1]
@@ -181,8 +181,13 @@ class RMLSender:
         for cmd in cmds:
             cmd = cmd.strip()
             if self.should_stop.isSet():
+                self.serial.flushOutput()
                 cmd="PA;PA;!VZ10;!PZ0,100;PU0,0;PD0,0;!MC0;"
-                self.serial.write(cmd)
+                for c in cmd:
+                    while ((self.serial.getDSR() != True) or (self.serial.getCTS() != True)):
+                        time.sleep(0.001)
+                    self.serial.write(c)
+                    self.serial.flush()
                 self.serial.close()
                 self.aborted.set()
                 return
@@ -191,7 +196,11 @@ class RMLSender:
                 self.current_cmd = cmd
                 self.cur_cmd_start = time.time()
                 self.cur_cmd_duration = 0.0
-            self.serial.write(cmd)
+            for c in cmd:
+                while ((self.serial.getDSR() != True) or (self.serial.getCTS() != True)):
+                    time.sleep(0.001)
+                self.serial.write(c)
+                self.serial.flush()
             try:
                 if cmd[:3] == "!PZ":
                     params = cmd[3:].split(',')
@@ -248,7 +257,7 @@ class RMLSender:
                         self.distance_milled += dist(xpos, ypos, zpos, x, y, z)
                         self.segments_done.append(((xpos, ypos, zpos), (x, y, z)))
                     xpos = x; ypos = y; zpos = z;
-                time.sleep(self.cur_cmd_duration)
+                #time.sleep(self.cur_cmd_duration)
             except:
                 print "ignoring: %s" % cmd
         self.done.set()

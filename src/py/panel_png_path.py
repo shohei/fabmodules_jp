@@ -307,7 +307,7 @@ class png_path_panel(wx.Panel):
    def update_panel(self):
       index = self.path_types.index(self.parent.path_type)
       self.path_type.SetSelection(index)
-      self.sizer.Remove(self.type_panel)
+      self.sizer.Detach(self.type_panel)
       self.type_panel.Hide()
       self.sizer.Add(self.type_panels[index],(3,0),flag=(wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_TOP))
       self.type_panels[index].Show()

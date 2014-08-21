@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-set(PROGRAMS vol_gif gif_png gif_stl stl_info stl_png stl_path
+set(PROGRAMS vol_gif vol_stl gif_info gif_png gif_stl stl_info stl_png stl_path
              png_size png_scale png_distances png_offset png_grb png_drl
              png_path png_halftone svg_path
              path_eps path_dxf path_png path_rml path_sbp path_g path_camm

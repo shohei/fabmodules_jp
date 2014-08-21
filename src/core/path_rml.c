@@ -2,12 +2,15 @@
 // path_rml.c
 //    convert path to Roland Modela .rml
 //
-// Neil Gershenfeld
-// CBA MIT 9/6/10
+// Neil Gershenfeld 7/19/14
+// (c) Massachusetts Institute of Technology 2014
 //
-// (c) Massachusetts Institute of Technology 2010
-// Permission granted for experimental and personal use;
-// license for commercial sale available from MIT.
+// This work may be reproduced, modified, distributed,
+// performed, and displayed for any purpose, but must
+// acknowledge the fab modules project. Copyright is
+// retained and must be preserved. The work is provided
+// as is; no warranty is provided, and users accept all 
+// liability.
 //
 
 #include "fab.h"

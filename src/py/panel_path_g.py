@@ -32,7 +32,6 @@ class path_g_panel(wx.Panel):
             direction = '0'
          else:
             direction = '1'
-         self.parent.g_file = self.parent.tmp+self.parent.rootname+'.g'
          height = self.height.GetValue()
          plunge = self.plunge.GetValue()
          speed = self.speed.GetValue()
@@ -44,6 +43,7 @@ class path_g_panel(wx.Panel):
             coolant = '0'
          command = 'path_g '+'\"'+self.parent.path_file+'\"'+' '+'\"'+self.parent.g_file+'\"'+' '+direction+' '+height+' '+speed+' '+plunge+' '+spindle+' '+tool+' '+coolant
          print command
+         os.system(command)
          temp_name = self.parent.tmp+'path_info'
          command = 'path_time '+'\"'+self.parent.path_file+'\"'+' '+speed+' '+height+' > '+'\"'+temp_name+'\"'
          print command

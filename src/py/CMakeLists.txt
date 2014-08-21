@@ -11,8 +11,10 @@ set(PYs fab_mods.py fab_set.py panel_control.py
         panel_path_sbp.py panel_path_ord.py panel_path_camm.py
         panel_path_epi.py panel_path_uni.py panel_path_g.py
         panel_path_eps.py panel_path_snap.py panel_path_dxf.py
+	panel_path_Roland_SRM_20.py
         panel_stl.py panel_stl_png.py
         panel_svg.py panel_svg_path.py
+        panel_gif.py panel_gif_stl.py
    CACHE STRING "Python script list")
 
 if( ${CMAKE_PROJECT_NAME} MATCHES fabmod )

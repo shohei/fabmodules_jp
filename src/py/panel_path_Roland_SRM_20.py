@@ -1,22 +1,25 @@
 #
 #-*- coding:utf-8 -*-
-# panel_path_rml.py
-#    make .rml from .path
+# panel_path_Roland_SRM_20.py
+#    path to Roland SRM-20
 #
-# Neil Gershenfeld
-# CBA MIT 2/19/11
+# Neil Gershenfeld 7/19/14
+# (c) Massachusetts Institute of Technology 2014
 #
-# (c) Massachusetts Institute of Technology 2011
-# Permission granted for experimental and personal use;
-# license for commercial sale available from MIT.
+# This work may be reproduced, modified, distributed,
+# performed, and displayed for any purpose, but must
+# acknowledge the fab modules project. Copyright is
+# retained and must be preserved. The work is provided
+# as is; no warranty is provided, and users accept all 
+# liability.
 #
 # imports
 #
-import wx,os,string
+import wx,os,string,threading
 #
 # panel class
 #
-class path_rml_panel(wx.Panel):
+class path_Roland_SRM_20_panel(wx.Panel):
    def __init__(self,parent):
       self.parent = parent
       self.parent.path_file = ''
@@ -25,7 +28,7 @@ class path_rml_panel(wx.Panel):
       #
       def make_rml(event):
          if (self.parent.path_file == ''):
-            print 'panel_path_rml: oops -- need path file'
+            print 'panel_path_Roland_SRM_20: oops -- need path file'
             return
          self.parent.rml_file = self.parent.tmp+self.parent.rootname+'.rml'
          speed = self.speed.GetValue()
@@ -52,19 +55,60 @@ class path_rml_panel(wx.Panel):
          self.parent.Layout()
          self.parent.Fit()
       #
-      # rml move
+      # rml move xy
       #
-      def move_rml(event):
+      def move_rml_xy(event):
          xmin = self.xmin.GetValue()
          ymin = self.ymin.GetValue()
-         command = 'rml_move xy '+xmin+' '+ymin
+         command = 'rml_move xy '+xmin+' '+ymin+' Roland_SRM-20'
          print command
          os.system(command)
+      #
+      # rml move z up
+      #
+      def up_callback():
+         global t
+         command = 'rml_move zup Roland_SRM-20'
+         print command
+         os.system(command)
+         t = threading.Timer(0.1,up_callback)
+         t.start()
+      def move_rml_up_start(event):
+         global t
+         t = threading.Timer(0.1,up_callback)
+         t.start()
+      def move_rml_up_stop(event):
+         global t
+         t.cancel()
+      #
+      # rml move z zero
+      #
+      def move_rml_zero(event):
+         command = 'rml_move z0 Roland_SRM-20'
+         print command
+         os.system(command)
+      #
+      # rml move z down
+      #
+      def down_callback():
+         global t
+         command = 'rml_move zdown Roland_SRM-20'
+         print command
+         os.system(command)
+         t = threading.Timer(0.1,down_callback)
+         t.start()
+      def move_rml_down_start(event):
+         global t
+         t = threading.Timer(0.1,down_callback)
+         t.start()
+      def move_rml_down_stop(event):
+         global t
+         t.cancel()
       #
       # send
       #
       def fab_send(event):
-         command = 'fab_send '+'\"'+self.parent.rml_file+'\"'
+         command = 'fab_send '+'\"'+self.parent.rml_file+'\" Roland_SRM-20'
          print command
          os.system(command)
       #
@@ -76,7 +120,7 @@ class path_rml_panel(wx.Panel):
       #
       # label
       #
-      label = wx.StaticText(self,label='rmlに変換')
+      label = wx.StaticText(self,label='to: Roland SRM-20')
       bold_font = wx.Font(10,wx.DEFAULT,wx.NORMAL,wx.BOLD)
       label.SetFont(bold_font)
       self.sizer.Add(label,(0,0),span=(1,2),flag=wx.ALIGN_CENTER_HORIZONTAL)
@@ -132,9 +176,23 @@ class path_rml_panel(wx.Panel):
       row7_sizer.Add(self.ymin,(0,1),flag=wx.ALIGN_CENTER_HORIZONTAL)
       self.sizer.Add(row7_panel,(7,0),span=(1,2),flag=(wx.ALIGN_CENTER_HORIZONTAL))
       #
-      move = wx.Button(self,label='xmin, yminに移動')
-      move.Bind(wx.EVT_BUTTON,move_rml)
-      self.sizer.Add(move,(8,0),span=(1,2),flag=wx.ALIGN_CENTER_HORIZONTAL)
+      self.move = wx.Button(self,label='xmin, yminに移動')
+      self.move.Bind(wx.EVT_BUTTON,move_rml_xy)
+      self.sizer.Add(self.move,(8,0),span=(1,2),flag=wx.ALIGN_CENTER_HORIZONTAL)
+      #
+      self.zup = wx.Button(self,label='move z up')
+      self.zup.Bind(wx.EVT_LEFT_DOWN,move_rml_up_start)
+      self.zup.Bind(wx.EVT_LEFT_UP,move_rml_up_stop)
+      self.sizer.Add(self.zup,(9,0),span=(1,2),flag=wx.ALIGN_CENTER_HORIZONTAL)
+      #
+      self.zzero = wx.Button(self,label='zの原点設定')
+      self.zzero.Bind(wx.EVT_BUTTON,move_rml_zero)
+      self.sizer.Add(self.zzero,(10,0),span=(1,2),flag=wx.ALIGN_CENTER_HORIZONTAL)
+      #
+      self.zdown = wx.Button(self,label='move z down')
+      self.zdown.Bind(wx.EVT_LEFT_DOWN,move_rml_down_start)
+      self.zdown.Bind(wx.EVT_LEFT_UP,move_rml_down_stop)
+      self.sizer.Add(self.zdown,(11,0),span=(1,2),flag=(wx.ALIGN_CENTER_HORIZONTAL))
       #
       # fit
       #

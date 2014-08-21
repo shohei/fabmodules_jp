@@ -1,9 +1,9 @@
 //
-// gif_stl.c
-//    .gif to .stl
+// vol_stl.c
+//    .vol to .stl
 //
-// Neil Gershenfeld 12/11/13
-// (c) Massachusetts Institute of Technology 2013
+// Neil Gershenfeld 5/21/14
+// (c) Massachusetts Institute of Technology 2014
 //
 // This work may be reproduced, modified, distributed,
 // performed, and displayed for any purpose, but must
@@ -221,66 +221,66 @@ void init_rules(char rules[255][20]) {
 // vertex
 //    add a triangle vertex
 //
-void vertex(char c, int x, int y, int z, float voxel_size, float t, uint32_t *w, float *array) {
+void vertex(char c, int x, int y, int z, float voxel_size, float t, float *w, float *array) {
    switch(c) {
       case 'a':
-         array[0] = x+(w[0]-t)/(w[0]-((float) w[1]));
+         array[0] = x+(w[0]-t)/(w[0]-w[1]);
          array[1] = y;
          array[2] = z;
          break;
       case 'b':
          array[0] = x+1;
-         array[1] = y+(w[1]-t)/(w[1]-((float) w[3]));
+         array[1] = y+(w[1]-t)/(w[1]-w[3]);
          array[2] = z;
          break;
       case 'c':
-         array[0] = x+(w[2]-t)/(w[2]-((float) w[3]));
+         array[0] = x+(w[2]-t)/(w[2]-w[3]);
          array[1] = y+1;
          array[2] = z;
          break;
       case 'd':
          array[0] = x;
-         array[1] = y+(w[0]-t)/(w[0]-((float) w[2]));
+         array[1] = y+(w[0]-t)/(w[0]-w[2]);
          array[2] = z;
          break;
       case 'e':
          array[0] = x;
          array[1] = y;
-         array[2] = z+(w[0]-t)/(w[0]-((float) w[4]));
+         array[2] = z+(w[0]-t)/(w[0]-w[4]);
          break;
       case 'f':
          array[0] = x+1;
          array[1] = y;
-         array[2] = z+(w[1]-t)/(w[1]-((float) w[5]));
+         array[2] = z+(w[1]-t)/(w[1]-w[5]);
          break;
       case 'g':
          array[0] = x+1;
          array[1] = y+1;
-         array[2] = z+(w[3]-t)/(w[3]-((float) w[7]));
+         array[2] = z+(w[3]-t)/(w[3]-w[7]);
          break;
       case 'h':
          array[0] = x;
          array[1] = y+1;
-         array[2] = z+(w[2]-t)/(w[2]-((float) w[6]));
+         array[2] = z+(w[2]-t)/(w[2]-w[6]);
          break;
       case 'i':
-         array[0] = x+(w[4]-t)/(w[4]-((float) w[5]));
+         array[0] = x+(w[4]-t)/(w[4]-w[5]);
          array[1] = y;
          array[2] = z+1;
          break;
       case 'j':
          array[0] = x+1;
-         array[1] = y+(w[5]-t)/(w[5]-((float) w[7]));
+         array[1] = y+(w[5]-t)/(w[5]-w[7]);
          array[2] = z+1;
          break;
       case 'k':
-         array[0] = x+(w[6]-t)/(w[6]-((float) w[7]));
+         array[0] = x+(w[6]-t)/(w[6]-w[7]);
          array[1] = y+1;
          array[2] = z+1;
          break;
       case 'l':
          array[0] = x;
-         array[1] = y+(w[4]-t)/(w[4]-((float) w[6]));
+         array[1] = y+(w[4]-t)/(w[4]-w[6]);
          array[2] = z+1;
          break;
       }
@@ -292,20 +292,20 @@ void vertex(char c, int x, int y, int z, float voxel_size, float t, uint32_t *w,
 // triangulate
 //    triangulate voxel at lattice site x,y,z with vertex weights w
 //
-void triangulate(int x, int y, int z, float voxel_size, float t, uint32_t *w, char rules[255][20], struct fab_vars *v) {
+void triangulate(int x, int y, int z, float voxel_size, float t, float *w, char rules[255][20], struct fab_vars *v) {
    int i,index;
    char c;
    //
    // set index code
    //
-   index = ((w[0] >= t) ? 0 : 1)
-         + ((w[1] >= t) ? 0 : 2)
-         + ((w[2] >= t) ? 0 : 4)
-         + ((w[3] >= t) ? 0 : 8)
-         + ((w[4] >= t) ? 0 : 16)
-         + ((w[5] >= t) ? 0 : 32)
-         + ((w[6] >= t) ? 0 : 64)
-         + ((w[7] >= t) ? 0 : 128);
+   index = ((w[0] < t) ? 0 : 1)
+         + ((w[1] < t) ? 0 : 2)
+         + ((w[2] < t) ? 0 : 4)
+         + ((w[3] < t) ? 0 : 8)
+         + ((w[4] < t) ? 0 : 16)
+         + ((w[5] < t) ? 0 : 32)
+         + ((w[6] < t) ? 0 : 64)
+         + ((w[7] < t) ? 0 : 128);
    //
    // add triangles for rule
    //
@@ -402,7 +402,7 @@ void fab_write_stl(struct fab_vars *v, char *output_file_name) {
    fclose(output_file);
    }
 
-float interp(int x,int y,int i,int j,int k,uint32_t **lower_array,uint32_t **upper_array,int p) {
+float interp(int x,int y,int i,int j,int k,float **lower_array,float **upper_array,int p) {
    //
    // trilinear interpolation within a voxel
    //
@@ -420,246 +420,188 @@ int main(int argc, char **argv) {
    //
    // local vars
    //
-   GifFileType *GIFfile;
-   GifRecordType GIFtype;
-   GifByteType *GIFextension;
-   GifPixelType *GIFline;
-   uint32_t w[8],**lower_array,**upper_array;
-   int x,y,z,i,j,k,n,p,imin,imax;
-   int image_width,image_height,image_count,color_resolution,GIFcode,ret;
+   FILE *input_file;
+   uint64_t count;
+   uint16_t itype;
+   int x,y,z,i,j,k,n,p,imin,imax,nx,ny,nz;
+   int image_width,image_height,color_resolution,ret;
+   float w[8],**lower_array,**upper_array;
    float threshold,voxel_size;
-   char comment[256],rules[255][20];
+   float ftype,fmin=1e10,fmax=-1e10;
+   char format,comment[256],rules[255][20];
    struct fab_vars v;
    init_vars(&v);
    //
    // command line args
    //
-   if (!((argc == 3) || (argc == 4) || (argc == 5) || (argc == 6))) {
-      printf("command line: gif_stl in.gif out.stl [threshold [size [points [angle]]]]\n");
-      printf("   in.gif = input GIF section file\n");
+   if (!((argc == 6) || (argc == 7) || (argc == 8) || (argc == 9) || (argc == 10))) {
+      printf("command line: vol_stl in.vol out.stl nx ny nz [format [threshold [size [points [angle]]]]]\n");
+      printf("   in.vol = input VOL file\n");
       printf("   out.stl = output STL file\n");
+      printf("   nx,ny,nz = x,y,z input voxel number\n");
+      printf("   format = 'f' for float 32, 'i' for uint16_t (default 'f')\n");
       printf("   threshold: surface intensity threshold (0 = min, 1 = max, default 0.5))\n");
       printf("   size = voxel size (mm, default from file))\n");
       printf("   points = points to interpolate per point (default 0)\n");
       printf("   to be implemented: angle = minimum relative face angle to decimate vertices (default 0)\n");
       exit(-1);
       }
+   format = 'f';
    p = 0;
    threshold = 0.5;
    voxel_size = -1;
    image_width = -1;
    image_height = -1;
-   image_count = -1;
-   if (argc >= 4)
-      sscanf(argv[3],"%f",&threshold);
-   if (argc >= 5)
-      sscanf(argv[4],"%f",&voxel_size);
-   if (argc >= 6)
-      sscanf(argv[5],"%d",&p);
+   sscanf(argv[3],"%d",&nx);
+   sscanf(argv[4],"%d",&ny);
+   sscanf(argv[5],"%d",&nz);
+   if (argc >= 7) {
+      sscanf(argv[6],"%c",&format);
+      if (!((format == 'f') || (format == 'i'))) {
+         printf("vol_gif: oops -- format must be 'f' or 'i'\n");
+         exit(-1);
+         }
+      }
+   if (argc >= 8)
+      sscanf(argv[7],"%f",&threshold);
+   if (argc >= 9)
+      sscanf(argv[8],"%f",&voxel_size);
+   if (argc >= 10)
+      sscanf(argv[9],"%d",&p);
    //
    // initialize the rule table
    //
    init_rules(rules);
    //
+   // check and find limits
+   //
+   input_file = fopen(argv[1],"rb");
+   if (input_file == NULL) {
+      printf("vol_stl: oops -- can not open %s\n",argv[1]);
+      exit(-1);
+      }
+   printf("read %s\n",argv[1]);
+   if (format == 'f') {
+      count = 0;
+      while (fread(&ftype,sizeof(ftype),1,input_file) != 0) {
+         if (ftype > fmax) fmax = ftype;
+         if (ftype < fmin) fmin = ftype;
+         count += 1;
+         }
+      }
+   else if (format == 'i') {
+      count = 0;
+      while (fread(&itype,sizeof(itype),1,input_file) != 0) {
+         if (itype > fmax) fmax = itype;
+         if (itype < fmin) fmin = itype;
+         count += 1;
+         }
+      }
+   if (nx*ny*nz != count) {
+      printf("vol_stl: oops -- file size doesn't match pixel number\n");
+      exit(-1);
+      }
+   printf("   %" PRIu64 " points, min %f, max %f\n",count,fmin,fmax);
+   printf("   nx ny nz: %d %d %d\n",nx,ny,nz);
+   rewind(input_file);
+   //
    // scan the file 
    //
    printf("read %s\n",argv[1]);
-   color_resolution = -1;
-#if GIFLIB_MAJOR >= 5
-   GIFfile = DGifOpenFileName(argv[1], NULL);
-#else
-   GIFfile = DGifOpenFileName(argv[1]);
-#endif
-   if (GIFfile == NULL) {
-      printf("gif_stl: oops -- can not open %s\n",argv[1]);
-      exit(-1);
-      }
-   GIFline = malloc(MAX_LINE*sizeof(GifPixelType));
-   imin = 256;
-   imax = 0;
-   do {
-      DGifGetRecordType(GIFfile,&GIFtype);
-      switch (GIFtype) {
-         case IMAGE_DESC_RECORD_TYPE:
-            DGifGetImageDesc(GIFfile);
-            image_width = GIFfile->SWidth;
-            image_height = GIFfile->SHeight;
-            image_count = GIFfile->ImageCount;
-            color_resolution = GIFfile->SColorResolution;
-            for (y = 0; y < GIFfile->SHeight; ++y) {
-               ret = DGifGetLine(GIFfile,GIFline,GIFfile->SWidth);
-               if (ret != GIF_OK) {
-                  printf("gif_stl: oops -- error reading line\n");
-                  exit(-1);
-                  }
-               for (x = 0; x < GIFfile->SWidth; ++x) {
-                  if (GIFline[x] < imin) imin = GIFline[x];
-                  if (GIFline[x] > imax) imax = GIFline[x];
-                  }
-               }
-            break;
-         case EXTENSION_RECORD_TYPE:
-            DGifGetExtension(GIFfile,&GIFcode,&GIFextension);
-            if (GIFcode == COMMENT_EXT_FUNC_CODE) {
-               n = GIFextension[0];
-               for (i = 1; i <= n; ++i)
-                  comment[i-1] = GIFextension[i];
-               comment[n] = 0;
-               if (voxel_size == -1)
-                  sscanf(comment,"mm per pixel: %f;",&voxel_size);
-               }
-            while (GIFextension != NULL)
-               DGifGetExtensionNext(GIFfile,&GIFextension);
-            break;
-         case SCREEN_DESC_RECORD_TYPE:
-            DGifGetScreenDesc(GIFfile);
-            break;
-         case TERMINATE_RECORD_TYPE:
-            break;
-         case UNDEFINED_RECORD_TYPE:
-            printf("gif_stl: oops -- undefined GIF record type\n");
-            exit(-1);
-            break;
-         }
-      } while (GIFtype != TERMINATE_RECORD_TYPE);
-   if (GIFfile == NULL) {
-      printf("gif_stl: oops -- can not open %s\n",argv[1]);
-      exit(-1);
-      }
-   if (voxel_size == -1) {
-      voxel_size = 1.0;
-      printf("   no pixel size found, assuming 1 mm\n");
-      }
-   printf("   voxel size (mm): %f, color resolution (bits): %d\n",voxel_size,color_resolution);
-   printf("   intensity min: %d max: %d\n",imin,imax);
-   printf("   number of images: %d, image width %d, image height %d\n",image_count,image_width,image_height);
    //
    // set threshold
    //
-   threshold = imin + threshold*(imax-imin);
+   threshold = fmin + threshold*(fmax-fmin);
    //
    // add empty border
    //
-   image_width += 2;
-   image_height += 2;
-   image_count += 2;
+   image_width = nx+2;
+   image_height = ny+2;
    //
    // allocate arrays
    //
-   lower_array = malloc(image_height*sizeof(uint32_t *));
+   lower_array = malloc(image_height*sizeof(float *));
    for (y = 0; y < image_height; ++y) {
-      lower_array[y] = malloc(image_width*sizeof(uint32_t));
+      lower_array[y] = malloc(image_width*sizeof(float));
       for (x = 0; x < image_width; ++x)
          lower_array[y][x] = 0;
       }
-   upper_array = malloc(image_height*sizeof(uint32_t *));
+   upper_array = malloc(image_height*sizeof(float *));
    for (y = 0; y < image_height; ++y) {
-      upper_array[y] = malloc(image_width*sizeof(uint32_t));
+      upper_array[y] = malloc(image_width*sizeof(float));
       for (x = 0; x < image_width; ++x)
          upper_array[y][x] = 0;
       }
    //
    // read the file
    //
-   DGifCloseFile(GIFfile);
-#if GIFLIB_MAJOR >= 5
-   GIFfile = DGifOpenFileName(argv[1], &error);
-#else
-   GIFfile = DGifOpenFileName(argv[1]);
-#endif
-   if (GIFfile == NULL) {
-      printf("gif_stl: oops -- can not open %s\n",argv[1]);
-      exit(-1);
-      }
    z = 0;
    v.mesh = malloc(sizeof(struct fab_mesh_type));
    v.mesh->triangle = malloc(sizeof(struct fab_mesh_triangle_type));
    v.mesh->first = v.mesh->triangle;
    v.mesh->last = v.mesh->triangle;
    v.mesh->triangle->previous = v.mesh->triangle->next = 0;
-   do {
-      DGifGetRecordType(GIFfile,&GIFtype);
-      switch (GIFtype) {
-         case IMAGE_DESC_RECORD_TYPE:
-            //
-            // read image
-            //
-            DGifGetImageDesc(GIFfile);
-            printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b   layer = %d",z);
-            //
-            // read layer
-            //
-            for (y = 0; y < (image_height-2); ++y) {
-               ret = DGifGetLine(GIFfile,GIFline,GIFfile->SWidth);
-               if (ret != GIF_OK) {
-                  printf("gif_stl: oops -- error reading line\n");
-                  exit(-1);
-                  }
-               for (x = 0; x < (image_width-2); ++x) {
-                  lower_array[y+1][x+1] = upper_array[y+1][x+1];
-                  upper_array[y+1][x+1] = GIFline[x];
-                  }
+   for (z = 0; z < nz; ++z) {
+      //
+      // read layer
+      //
+      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b   layer = %d",z);
+      for (y = 0; y < ny; ++y) {
+         for (x = 0; x < nx; ++x) {
+            lower_array[y+1][x+1] = upper_array[y+1][x+1];
+            if (format == 'f') {
+               fread(&ftype,sizeof(ftype),1,input_file);
+               upper_array[y+1][x+1] = ftype;
                }
-            if (p == 0) {
-               //
-               // no interpolation, loop over layer voxels
-               //
-               for (x = 0; x < (image_width-1); ++x) {
-                  for (y = 0; y < (image_height-1); ++y) {
-                     w[0] = lower_array[y][x];
-                     w[1] = lower_array[y][x+1];
-                     w[2] = lower_array[y+1][x];
-                     w[3] = lower_array[y+1][x+1];
-                     w[4] = upper_array[y][x];
-                     w[5] = upper_array[y][x+1];
-                     w[6] = upper_array[y+1][x];
-                     w[7] = upper_array[y+1][x+1];
-                     triangulate(x,y,z,voxel_size,threshold,w,rules,&v);
-                     }
-                  }
+            else if (format == 'i') {
+               fread(&itype,sizeof(itype),1,input_file);
+               upper_array[y+1][x+1] = itype;
                }
-            else {
-               //
-               // yes interpolation, loop over layer sub-voxels
-               //
-               for (x = 0; x < (image_width-1); ++x) {
-                  for (y = 0; y < (image_height-1); ++y) {
-                     for (i = 0; i <= p; ++i) {
-                        for (j = 0; j <= p; ++j) {
-                           for (k = 0; k <= p; ++k) {
-                              w[0] = interp(x,y,i,j,k,lower_array,upper_array,p);
-                              w[1] = interp(x,y,i+1,j,k,lower_array,upper_array,p);
-                              w[2] = interp(x,y,i,j+1,k,lower_array,upper_array,p);
-                              w[3] = interp(x,y,i+1,j+1,k,lower_array,upper_array,p);
-                              w[4] = interp(x,y,i,j,k+1,lower_array,upper_array,p);
-                              w[5] = interp(x,y,i+1,j,k+1,lower_array,upper_array,p);
-                              w[6] = interp(x,y,i,j+1,k+1,lower_array,upper_array,p);
-                              w[7] = interp(x,y,i+1,j+1,k+1,lower_array,upper_array,p);
-                              triangulate((1+p)*x+i,(1+p)*y+j,(1+p)*z+k,voxel_size,threshold,w,rules,&v);
-                              }
-                           }
+            }
+         }
+      if (p == 0) {
+         //
+         // no interpolation, loop over layer voxels
+         //
+         for (x = 0; x < (image_width-1); ++x) {
+            for (y = 0; y < (image_height-1); ++y) {
+               w[0] = lower_array[y][x];
+               w[1] = lower_array[y][x+1];
+               w[2] = lower_array[y+1][x];
+               w[3] = lower_array[y+1][x+1];
+               w[4] = upper_array[y][x];
+               w[5] = upper_array[y][x+1];
+               w[6] = upper_array[y+1][x];
+               w[7] = upper_array[y+1][x+1];
+               triangulate(x,y,z,voxel_size,threshold,w,rules,&v);
+               }
+            }
+         }
+      else {
+         //
+         // yes interpolation, loop over layer sub-voxels
+         //
+         for (x = 0; x < (image_width-1); ++x) {
+            for (y = 0; y < (image_height-1); ++y) {
+               for (i = 0; i <= p; ++i) {
+                  for (j = 0; j <= p; ++j) {
+                     for (k = 0; k <= p; ++k) {
+                        w[0] = interp(x,y,i,j,k,lower_array,upper_array,p);
+                        w[1] = interp(x,y,i+1,j,k,lower_array,upper_array,p);
+                        w[2] = interp(x,y,i,j+1,k,lower_array,upper_array,p);
+                        w[3] = interp(x,y,i+1,j+1,k,lower_array,upper_array,p);
+                        w[4] = interp(x,y,i,j,k+1,lower_array,upper_array,p);
+                        w[5] = interp(x,y,i+1,j,k+1,lower_array,upper_array,p);
+                        w[6] = interp(x,y,i,j+1,k+1,lower_array,upper_array,p);
+                        w[7] = interp(x,y,i+1,j+1,k+1,lower_array,upper_array,p);
+                        triangulate((1+p)*x+i,(1+p)*y+j,(1+p)*z+k,voxel_size,threshold,w,rules,&v);
                         }
                      }
                   }
                }
-            z += 1;
-            break;
-         case EXTENSION_RECORD_TYPE:
-            DGifGetExtension(GIFfile,&GIFcode,&GIFextension);
-            while (GIFextension != NULL)
-               DGifGetExtensionNext(GIFfile,&GIFextension);
-            break;
-         case SCREEN_DESC_RECORD_TYPE:
-            DGifGetScreenDesc(GIFfile);
-            break;
-         case TERMINATE_RECORD_TYPE:
-            break;
-         case UNDEFINED_RECORD_TYPE:
-            printf("gif_stl: oops -- undefined GIF record type\n");
-            exit(-1);
-            break;
+            }
          }
-      } while (GIFtype != TERMINATE_RECORD_TYPE);
+      }
    //
    // add empty top layer
    //
@@ -720,6 +662,6 @@ int main(int argc, char **argv) {
    //
    // exit
    //
-   DGifCloseFile(GIFfile);
+   fclose(input_file);
    exit(0);
    }

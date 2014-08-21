@@ -107,6 +107,7 @@ class svg_path_panel(wx.Panel):
       make_sizer.Add(wx.StaticText(make_panel,label='型式'),(0,1),flag=(wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL))
       self.path_types = ["2D","3D"]
       self.path_type = wx.ComboBox(make_panel,size=(100,-1),value="2D",choices=self.path_types,style=wx.CB_READONLY)
+      self.parent.path_type = "2D"
       self.path_type.Bind(wx.EVT_COMBOBOX,self.path_type_handler)
       make_sizer.Add(self.path_type,(0,2),flag=wx.ALIGN_LEFT)
       self.sizer.Add(make_panel,(2,0),flag=(wx.ALIGN_CENTER_HORIZONTAL))
@@ -180,7 +181,7 @@ class svg_path_panel(wx.Panel):
    def update_panel(self):
       index = self.path_types.index(self.parent.path_type)
       self.path_type.SetSelection(index)
-      self.sizer.Remove(self.type_panel)
+      self.sizer.Detach(self.type_panel)
       self.type_panel.Hide()
       self.sizer.Add(self.type_panels[index],(3,0),flag=(wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_TOP))
       self.type_panels[index].Show()

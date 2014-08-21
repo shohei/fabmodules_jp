@@ -16,10 +16,6 @@
 #define MAX_LINE 10000
 #define BIG 1e10
 
-/*
-gcc -O3 gif_png.c ~/hg/kokompe/dev/mod/src/core/fab.c -o gif_png -D_FILE_OFFSET_BITS=64 -Wall -lm -lpng -lgif
-*/
-
 #include "fab.h"
 
 int main(int argc, char **argv) {
@@ -88,7 +84,11 @@ int main(int argc, char **argv) {
    imin = 256;
    imax = 0;
    color_resolution = -1;
+#if GIFLIB_MAJOR >= 5
+   GIFfile = DGifOpenFileName(argv[1], NULL);
+#else
    GIFfile = DGifOpenFileName(argv[1]);
+#endif
    if (GIFfile == NULL) {
       printf("gif_png: oops -- can not open %s\n",argv[1]);
       exit(-1);
@@ -198,7 +198,11 @@ int main(int argc, char **argv) {
    // read the file
    //
    DGifCloseFile(GIFfile);
+#if GIFLIB_MAJOR >= 5
+   GIFfile = DGifOpenFileName(argv[1], &error);
+#else
    GIFfile = DGifOpenFileName(argv[1]);
+#endif
    if (GIFfile == NULL) {
       printf("gif_png: oops -- can not open %s\n",argv[1]);
       exit(-1);

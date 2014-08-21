@@ -25,14 +25,7 @@ ADD_EXECUTABLE(math_stats math_stats.cpp volsolver.cpp)
 
 SET(LIBRARIES
     MathTree ${PNG_LIBRARY}
-    ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY})
-
-# Ubuntu 13.10 requires us to link against pthread
-EXECUTE_PROCESS(COMMAND sh -c "which lsb_release >/dev/null && lsb_release -r | grep 13.10" OUTPUT_VARIABLE ubuntu13_10)
-if (NOT "${ubuntu13_10}" STREQUAL "")
-    SET(LIBRARIES ${LIBRARIES} pthread)
-    MESSAGE(STATUS "Ubuntu 13.10 detected: Adding pthread to linked libraries")
-endif()
+    ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY} pthread)
 
 TARGET_LINK_LIBRARIES (math_png ${LIBRARIES})
 TARGET_LINK_LIBRARIES (math_ray ${LIBRARIES})
